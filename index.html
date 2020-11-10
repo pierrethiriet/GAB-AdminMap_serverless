@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+
+    <meta charset="utf-8">
+
+    <title>GAB35</title>
+    <meta name="description" content="Carte des ..."> <!-- completer -->
+    <meta name="author" content="GAB35">
+
+
+    <!-- favicon -->
+    <link rel="icon" type="image/png" href="data/favicon/gab35_favicon_16px.png"/>
+
+    <!-- stylesheet -->
+    <link rel="stylesheet" href="node_modules/@fortawesome/fontawesome-free/css/all.css">
+    <link rel="stylesheet" href="css/style.css">
+
+  </head>
+
+  <body>
+
+    <!-- Main page grid container -->
+    <div class="grid-container">
+
+      <!-- Header -->
+      <div class="grid-header">
+
+        <div><span class="project-name">Carte du développement de la bio en 35</span> </div>
+
+        <a href="https://www.inrae.fr/en">
+          <img class="logo" src="./data/Agrobio35IlleVilaine_logo.png" alt="INRAe Logo">
+        </a>
+
+      </div>
+      <!-- #/ Header -->
+
+
+      <!-- Sidebar -->
+      <div id="sidebar" class="grid-sidebar grid-sidebar-show">
+
+        <!-- Admin scale selector -->
+        <h5>Echelle administrative</h5>
+        <div class="scale-switch-container">
+          <!-- <div class="scale-switch-label">Valeur</div> -->
+          <select id="scaleSwitch" class="scale-switch-select">
+          </select>
+          
+        </div>
+        
+        <div id="layerAttrContainer" class="layer-attr-container">
+          <div id="infoLayer" class="info-layer">
+              <div id="infoLayerName" class="name"></div>
+              <div id="infoLayerDescription" class="description"></div>
+              <div id="infoLayerDataLink" class="data-link"></div>
+          </div>
+        </div>
+
+
+
+      </div>
+      <!-- #/ Sidebar -->
+
+
+      <!-- Map  -->
+      <div class="grid-map">
+
+        <!-- Main map or analysis map  -->
+        <div id="mapAnalysis">
+          <div id="map"></div>
+        </div>
+
+      </div>
+
+
+        <!-- Base map control -->
+        <div class="baseMapBtnDiv">
+          <button id="baseMapBtn"><i class="fas fa-layer-group"></i></button>
+        </div>
+    
+        <div id="baseMapSwitchDiv" style="display: none">
+          <select id="baseMapSwitch">
+            <option value="EsriWorldTopo" selected>Carte Topo (ESRI)</option>
+            <option value="osmFr">arte Topo (OSM)</option>
+            <option value="EsriWorldImagery">Esri Imagery</option>
+          </select>
+        </div>
+
+
+      <!-- Footer -->
+      <div class="grid-footer">
+        <p>Le groupement des agrobiologistes d’Ille-et-Vilaine (AgroBio 35) - 2020</p>
+      </div>
+
+
+    </div>
+    <!-- / grid-container  -->
+
+
+
+    <!-- Javascript  -->
+    <script src="./js/index.js"></script>
+
+  </body>
+
+</html>
