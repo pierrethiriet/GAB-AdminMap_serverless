@@ -1,0 +1,34 @@
+{
+  "name": "gab-adminmap_serverless",
+  "version": "0.0.1",
+  "description": "Carte interactive des action d'AgroBio 35",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "parcel index.html",
+    "build": "parcel build --public-url . index.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pierrethiriet/GAB-AdminMap_serverless.git"
+  },
+  "keywords": [
+    "carte",
+    "agriculture",
+    "bio",
+    "agrobio"
+  ],
+  "author": "AgroBio 35",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pierrethiriet/GAB-AdminMap_serverless/issues"
+  },
+  "homepage": "https://github.com/pierrethiriet/GAB-AdminMap_serverless#readme",
+  "devDependencies": {
+    "parcel-bundler": "^1.12.4"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.15.1",
+    "ol": "^6.4.3"
+  }
+}
