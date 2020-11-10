@@ -95650,7 +95650,6 @@ var featureSelectStyle = new _style.Style({
 /*----------  Add vector  ----------*/
 // Get info DOM
 
-var infoLayer = document.getElementById("infoLayer");
 var infoLayerName = document.getElementById("infoLayerName");
 var infoLayerDescription = document.getElementById("infoLayerDescription");
 var infoLayerDataLink = document.getElementById("infoLayerDataLink"); // Container for feature selected
@@ -95712,8 +95711,7 @@ var layerVectorChange = function layerVectorChange() {
 
 layerVectorChange();
 scaleSwitch.addEventListener("change", function () {
-  // Clear feature selected array
-  featureSelected.length = 0;
+  // Clear vector selected source
   featureOverlay.getSource().clear(); // Clear info
 
   infoLayerName.innerHTML = "&nbsp;";
@@ -95801,7 +95799,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59054" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53149" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
