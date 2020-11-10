@@ -224,7 +224,6 @@ const featureSelectStyle = new Style({
 /*----------  Add vector  ----------*/
 
 // Get info DOM
-const infoLayer = document.getElementById("infoLayer");
 const infoLayerName = document.getElementById("infoLayerName");
 const infoLayerDescription = document.getElementById("infoLayerDescription");
 const infoLayerDataLink = document.getElementById("infoLayerDataLink");
@@ -276,8 +275,7 @@ const layerVectorChange = () => {
 layerVectorChange();
 
 scaleSwitch.addEventListener("change", () => {
-  // Clear feature selected array
-  featureSelected.length = 0;
+  // Clear vector selected source
   featureOverlay.getSource().clear();
   // Clear info
   infoLayerName.innerHTML = "&nbsp;";
