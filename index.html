@@ -50,6 +50,11 @@
         
         <div id="layerAttrContainer" class="layer-attr-container">
           <div id="infoLayer" class="info-layer">
+
+              <p id="defaultInfo">
+                Cliquez sur les éléments de la carte pour plus d’information
+              </p>
+
               <div id="infoLayerName" class="name"></div>
               <div id="infoLayerDescription" class="description"></div>
               <div id="infoLayerDataLink" class="data-link"></div>
@@ -78,10 +83,10 @@
           <button id="baseMapBtn"><i class="fas fa-layer-group"></i></button>
         </div>
     
-        <div id="baseMapSwitchDiv" style="display: none">
+        <div id="baseMapSwitchDiv" class="hidden">
           <select id="baseMapSwitch">
             <option value="EsriWorldTopo" selected>Carte Topo (ESRI)</option>
-            <option value="osmFr">arte Topo (OSM)</option>
+            <option value="osmFr">Carte Topo (OSM)</option>
             <option value="EsriWorldImagery">Esri Imagery</option>
           </select>
         </div>

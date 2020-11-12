@@ -162,17 +162,13 @@ baseLayersOnChange();
 
 // Show or hide basemap switch
 baseMapBtn.addEventListener("click", () => {
-  if (baseMapSwitchDiv.style.display == "block") {
-    baseMapSwitchDiv.style.display = "none"
-  } else {
-    baseMapSwitchDiv.style.display = "block"
-  }
+  baseMapSwitchDiv.classList.toggle("hidden");
 });
 
 // Change basemap layer
 baseMapSwitchDiv.addEventListener("change", () => {
   baseLayersOnChange();
-  baseMapSwitchDiv.style.display = "none";
+  baseMapSwitchDiv.classList.add("hidden");
 });
 
 
@@ -227,6 +223,7 @@ const featureSelectStyle = new Style({
 const infoLayerName = document.getElementById("infoLayerName");
 const infoLayerDescription = document.getElementById("infoLayerDescription");
 const infoLayerDataLink = document.getElementById("infoLayerDataLink");
+const defaultInfo = document.getElementById("defaultInfo");
 
 // Container for feature selected
 let featureSelected;
@@ -274,10 +271,12 @@ const layerVectorChange = () => {
 // Display default layer
 layerVectorChange();
 
+// Bind scale switch to map layers
 scaleSwitch.addEventListener("change", () => {
   // Clear vector selected source
   featureOverlay.getSource().clear();
   // Clear info
+  defaultInfo.classList.remove("hidden");
   infoLayerName.innerHTML = "&nbsp;";
   infoLayerDescription.innerHTML = "&nbsp;";
   infoLayerDataLink.innerHTML = "&nbsp;";
@@ -291,13 +290,19 @@ scaleSwitch.addEventListener("change", () => {
  
 
 const displayFeatureInfo = (pixel) => {
+
   // Get features at click coordinates (pixel)
   const features = map.getFeaturesAtPixel(pixel);
+
   // Extract first features
   const feature = features.length ? features[0] : undefined;
 
 
   if (feature) {
+
+    // Hide default text in info panel
+    defaultInfo.classList.add("hidden");
+
     // Add feature info to panel
     infoLayerName.innerHTML = feature.get("nom");
     infoLayerDescription.innerHTML = feature.get("description");
@@ -326,12 +331,14 @@ const displayFeatureInfo = (pixel) => {
     });
 
   } else {
+    defaultInfo.classList.remove("hidden");
     infoLayerName.innerHTML = "&nbsp;";
     infoLayerDescription.innerHTML = "&nbsp;";
     infoLayerDataLink.innerHTML = "&nbsp;";
     featureOverlay.getSource().clear();
 
   };
+
 };
   
 
