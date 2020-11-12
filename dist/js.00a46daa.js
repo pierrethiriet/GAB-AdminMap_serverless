@@ -95601,16 +95601,12 @@ var baseLayersOnChange = function baseLayersOnChange() {
 baseLayersOnChange(); // Show or hide basemap switch
 
 baseMapBtn.addEventListener("click", function () {
-  if (baseMapSwitchDiv.style.display == "block") {
-    baseMapSwitchDiv.style.display = "none";
-  } else {
-    baseMapSwitchDiv.style.display = "block";
-  }
+  baseMapSwitchDiv.classList.toggle("hidden");
 }); // Change basemap layer
 
 baseMapSwitchDiv.addEventListener("change", function () {
   baseLayersOnChange();
-  baseMapSwitchDiv.style.display = "none";
+  baseMapSwitchDiv.classList.add("hidden");
 });
 /*=====  End of Maps setup  ======*/
 
@@ -95652,7 +95648,8 @@ var featureSelectStyle = new _style.Style({
 
 var infoLayerName = document.getElementById("infoLayerName");
 var infoLayerDescription = document.getElementById("infoLayerDescription");
-var infoLayerDataLink = document.getElementById("infoLayerDataLink"); // Container for feature selected
+var infoLayerDataLink = document.getElementById("infoLayerDataLink");
+var defaultInfo = document.getElementById("defaultInfo"); // Container for feature selected
 
 var featureSelected; // Create vector layers for all entries of layer list
 
@@ -95709,11 +95706,13 @@ var layerVectorChange = function layerVectorChange() {
 }; // Display default layer
 
 
-layerVectorChange();
+layerVectorChange(); // Bind scale switch to map layers
+
 scaleSwitch.addEventListener("change", function () {
   // Clear vector selected source
   featureOverlay.getSource().clear(); // Clear info
 
+  defaultInfo.classList.remove("hidden");
   infoLayerName.innerHTML = "&nbsp;";
   infoLayerDescription.innerHTML = "&nbsp;";
   infoLayerDataLink.innerHTML = "&nbsp;"; // Display layer selected
@@ -95729,7 +95728,9 @@ var displayFeatureInfo = function displayFeatureInfo(pixel) {
   var feature = features.length ? features[0] : undefined;
 
   if (feature) {
-    // Add feature info to panel
+    // Hide default text in info panel
+    defaultInfo.classList.add("hidden"); // Add feature info to panel
+
     infoLayerName.innerHTML = feature.get("nom");
     infoLayerDescription.innerHTML = feature.get("description");
 
@@ -95758,6 +95759,7 @@ var displayFeatureInfo = function displayFeatureInfo(pixel) {
       easing: _easing.inAndOut
     });
   } else {
+    defaultInfo.classList.remove("hidden");
     infoLayerName.innerHTML = "&nbsp;";
     infoLayerDescription.innerHTML = "&nbsp;";
     infoLayerDataLink.innerHTML = "&nbsp;";
@@ -95799,7 +95801,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53149" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50401" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
