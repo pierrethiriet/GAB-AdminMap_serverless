@@ -3,8 +3,10 @@ import {Map, View} from 'ol';
 import TopoJSON from 'ol/format/TopoJSON';
 import {Fill, Stroke, Style, Text} from 'ol/style';
 import {Tile as TileLayer, Vector as VectorLayer} from 'ol/layer';
-import {Vector as VectorSource, XYZ} from "ol/source"
-import {fromLonLat} from "ol/proj";
+import WMTSTileGrid from 'ol/tilegrid/WMTS';
+import {Vector as VectorSource, XYZ, WMTS} from "ol/source"
+import {fromLonLat, get as getProjection} from "ol/proj";
+import {getWidth} from 'ol/extent';
 import {defaults as defaultControls, ScaleLine} from "ol/control.js";
 import {inAndOut} from 'ol/easing';
 
@@ -116,8 +118,49 @@ const osmFr = new TileLayer({
 });
 
 
+// IGN 
+
+const resolutions = [];
+const matrixIds = [];
+const proj3857 = getProjection('EPSG:3857');
+const maxResolution = getWidth(proj3857.getExtent()) / 256;
+
+for (let i = 0; i < 18; i++) {
+  matrixIds[i] = i.toString();
+  resolutions[i] = maxResolution / Math.pow(2, i);
+}
+
+const tileGrid = new WMTSTileGrid({
+  origin: [-20037508, 20037508],
+  resolutions: resolutions,
+  matrixIds: matrixIds,
+});
+
+// For more information about the IGN API key see
+// https://geoservices.ign.fr/documentation/donnees-ressources-wmts.html
+
+const ignSource = new WMTS({
+  url: 'https://wxs.ign.fr/pratique/geoportail/wmts',
+  layer: 'GEOGRAPHICALGRIDSYSTEMS.MAPS',
+  matrixSet: 'PM',
+  format: 'image/jpeg',
+  projection: 'EPSG:3857',
+  tileGrid: tileGrid,
+  style: 'normal',
+  attributions:
+    '<a href="http://www.ign.fr" target="_blank">' +
+    '<img src="https://wxs.ign.fr/static/logos/IGN/IGN.gif" title="Institut national de l\'' +
+    'information géographique et forestière" alt="IGN"></a>',
+});
+
+var ign = new TileLayer({
+  source: ignSource,
+  zIndex: 0,
+  layerLabel: "ign"
+});  
+
 // List of base layers
-const baseLayers = [EsriWorldTopo, osmFr, EsriWorldImagery];
+const baseLayers = [EsriWorldTopo, osmFr, EsriWorldImagery, ign];
   
 
 /*----------  Ol map  ----------*/
