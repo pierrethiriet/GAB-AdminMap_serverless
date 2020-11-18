@@ -87225,7 +87225,234 @@ var _VectorTile = _interopRequireDefault(require("./layer/VectorTile.js"));
 var _WebGLPoints = _interopRequireDefault(require("./layer/WebGLPoints.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-},{"./layer/Graticule.js":"node_modules/ol/layer/Graticule.js","./layer/Group.js":"node_modules/ol/layer/Group.js","./layer/Heatmap.js":"node_modules/ol/layer/Heatmap.js","./layer/Image.js":"node_modules/ol/layer/Image.js","./layer/Layer.js":"node_modules/ol/layer/Layer.js","./layer/MapboxVector.js":"node_modules/ol/layer/MapboxVector.js","./layer/Tile.js":"node_modules/ol/layer/Tile.js","./layer/Vector.js":"node_modules/ol/layer/Vector.js","./layer/VectorImage.js":"node_modules/ol/layer/VectorImage.js","./layer/VectorTile.js":"node_modules/ol/layer/VectorTile.js","./layer/WebGLPoints.js":"node_modules/ol/layer/WebGLPoints.js"}],"node_modules/ol/source/BingMaps.js":[function(require,module,exports) {
+},{"./layer/Graticule.js":"node_modules/ol/layer/Graticule.js","./layer/Group.js":"node_modules/ol/layer/Group.js","./layer/Heatmap.js":"node_modules/ol/layer/Heatmap.js","./layer/Image.js":"node_modules/ol/layer/Image.js","./layer/Layer.js":"node_modules/ol/layer/Layer.js","./layer/MapboxVector.js":"node_modules/ol/layer/MapboxVector.js","./layer/Tile.js":"node_modules/ol/layer/Tile.js","./layer/Vector.js":"node_modules/ol/layer/Vector.js","./layer/VectorImage.js":"node_modules/ol/layer/VectorImage.js","./layer/VectorTile.js":"node_modules/ol/layer/VectorTile.js","./layer/WebGLPoints.js":"node_modules/ol/layer/WebGLPoints.js"}],"node_modules/ol/tilegrid/WMTS.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.createFromCapabilitiesMatrixSet = createFromCapabilitiesMatrixSet;
+exports.default = void 0;
+
+var _TileGrid = _interopRequireDefault(require("./TileGrid.js"));
+
+var _array = require("../array.js");
+
+var _proj = require("../proj.js");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * @module ol/tilegrid/WMTS
+ */
+var __extends = void 0 && (void 0).__extends || function () {
+  var extendStatics = function (d, b) {
+    extendStatics = Object.setPrototypeOf || {
+      __proto__: []
+    } instanceof Array && function (d, b) {
+      d.__proto__ = b;
+    } || function (d, b) {
+      for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    };
+
+    return extendStatics(d, b);
+  };
+
+  return function (d, b) {
+    extendStatics(d, b);
+
+    function __() {
+      this.constructor = d;
+    }
+
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+  };
+}();
+
+/**
+ * @typedef {Object} Options
+ * @property {import("../extent.js").Extent} [extent] Extent for the tile grid. No tiles
+ * outside this extent will be requested by {@link module:ol/source/Tile} sources.
+ * When no `origin` or `origins` are configured, the `origin` will be set to the
+ * top-left corner of the extent.
+ * @property {import("../coordinate.js").Coordinate} [origin] The tile grid origin, i.e.
+ * where the `x` and `y` axes meet (`[z, 0, 0]`). Tile coordinates increase left
+ * to right and downwards. If not specified, `extent` or `origins` must be provided.
+ * @property {Array<import("../coordinate.js").Coordinate>} [origins] Tile grid origins,
+ * i.e. where the `x` and `y` axes meet (`[z, 0, 0]`), for each zoom level. If
+ * given, the array length should match the length of the `resolutions` array, i.e.
+ * each resolution can have a different origin. Tile coordinates increase left to
+ * right and downwards. If not specified, `extent` or `origin` must be provided.
+ * @property {!Array<number>} resolutions Resolutions. The array index of each
+ * resolution needs to match the zoom level. This means that even if a `minZoom`
+ * is configured, the resolutions array will have a length of `maxZoom + 1`
+ * @property {!Array<string>} matrixIds matrix IDs. The length of this array needs
+ * to match the length of the `resolutions` array.
+ * @property {Array<import("../size.js").Size>} [sizes] Number of tile rows and columns
+ * of the grid for each zoom level. The values here are the `TileMatrixWidth` and
+ * `TileMatrixHeight` advertised in the GetCapabilities response of the WMTS, and
+ * define each zoom level's extent together with the `origin` or `origins`.
+ * A grid `extent` can be configured in addition, and will further limit the extent for
+ * which tile requests are made by sources. If the bottom-left corner of
+ * an extent is used as `origin` or `origins`, then the `y` value must be
+ * negative because OpenLayers tile coordinates use the top left as the origin.
+ * @property {number|import("../size.js").Size} [tileSize] Tile size.
+ * @property {Array<import("../size.js").Size>} [tileSizes] Tile sizes. The length of
+ * this array needs to match the length of the `resolutions` array.
+ */
+
+/**
+ * @classdesc
+ * Set the grid pattern for sources accessing WMTS tiled-image servers.
+ * @api
+ */
+var WMTSTileGrid =
+/** @class */
+function (_super) {
+  __extends(WMTSTileGrid, _super);
+  /**
+   * @param {Options} options WMTS options.
+   */
+
+
+  function WMTSTileGrid(options) {
+    var _this = _super.call(this, {
+      extent: options.extent,
+      origin: options.origin,
+      origins: options.origins,
+      resolutions: options.resolutions,
+      tileSize: options.tileSize,
+      tileSizes: options.tileSizes,
+      sizes: options.sizes
+    }) || this;
+    /**
+     * @private
+     * @type {!Array<string>}
+     */
+
+
+    _this.matrixIds_ = options.matrixIds;
+    return _this;
+  }
+  /**
+   * @param {number} z Z.
+   * @return {string} MatrixId..
+   */
+
+
+  WMTSTileGrid.prototype.getMatrixId = function (z) {
+    return this.matrixIds_[z];
+  };
+  /**
+   * Get the list of matrix identifiers.
+   * @return {Array<string>} MatrixIds.
+   * @api
+   */
+
+
+  WMTSTileGrid.prototype.getMatrixIds = function () {
+    return this.matrixIds_;
+  };
+
+  return WMTSTileGrid;
+}(_TileGrid.default);
+
+var _default = WMTSTileGrid;
+/**
+ * Create a tile grid from a WMTS capabilities matrix set and an
+ * optional TileMatrixSetLimits.
+ * @param {Object} matrixSet An object representing a matrixSet in the
+ *     capabilities document.
+ * @param {import("../extent.js").Extent=} opt_extent An optional extent to restrict the tile
+ *     ranges the server provides.
+ * @param {Array<Object>=} opt_matrixLimits An optional object representing
+ *     the available matrices for tileGrid.
+ * @return {WMTSTileGrid} WMTS tileGrid instance.
+ * @api
+ */
+
+exports.default = _default;
+
+function createFromCapabilitiesMatrixSet(matrixSet, opt_extent, opt_matrixLimits) {
+  /** @type {!Array<number>} */
+  var resolutions = [];
+  /** @type {!Array<string>} */
+
+  var matrixIds = [];
+  /** @type {!Array<import("../coordinate.js").Coordinate>} */
+
+  var origins = [];
+  /** @type {!Array<import("../size.js").Size>} */
+
+  var tileSizes = [];
+  /** @type {!Array<import("../size.js").Size>} */
+
+  var sizes = [];
+  var matrixLimits = opt_matrixLimits !== undefined ? opt_matrixLimits : [];
+  var supportedCRSPropName = 'SupportedCRS';
+  var matrixIdsPropName = 'TileMatrix';
+  var identifierPropName = 'Identifier';
+  var scaleDenominatorPropName = 'ScaleDenominator';
+  var topLeftCornerPropName = 'TopLeftCorner';
+  var tileWidthPropName = 'TileWidth';
+  var tileHeightPropName = 'TileHeight';
+  var code = matrixSet[supportedCRSPropName];
+  var projection = (0, _proj.get)(code.replace(/urn:ogc:def:crs:(\w+):(.*:)?(\w+)$/, '$1:$3')) || (0, _proj.get)(code);
+  var metersPerUnit = projection.getMetersPerUnit(); // swap origin x and y coordinates if axis orientation is lat/long
+
+  var switchOriginXY = projection.getAxisOrientation().substr(0, 2) == 'ne';
+  matrixSet[matrixIdsPropName].sort(function (a, b) {
+    return b[scaleDenominatorPropName] - a[scaleDenominatorPropName];
+  });
+  matrixSet[matrixIdsPropName].forEach(function (elt) {
+    var matrixAvailable; // use of matrixLimits to filter TileMatrices from GetCapabilities
+    // TileMatrixSet from unavailable matrix levels.
+
+    if (matrixLimits.length > 0) {
+      matrixAvailable = (0, _array.find)(matrixLimits, function (elt_ml) {
+        if (elt[identifierPropName] == elt_ml[matrixIdsPropName]) {
+          return true;
+        } // Fallback for tileMatrix identifiers that don't get prefixed
+        // by their tileMatrixSet identifiers.
+
+
+        if (elt[identifierPropName].indexOf(':') === -1) {
+          return matrixSet[identifierPropName] + ':' + elt[identifierPropName] === elt_ml[matrixIdsPropName];
+        }
+
+        return false;
+      });
+    } else {
+      matrixAvailable = true;
+    }
+
+    if (matrixAvailable) {
+      matrixIds.push(elt[identifierPropName]);
+      var resolution = elt[scaleDenominatorPropName] * 0.28e-3 / metersPerUnit;
+      var tileWidth = elt[tileWidthPropName];
+      var tileHeight = elt[tileHeightPropName];
+
+      if (switchOriginXY) {
+        origins.push([elt[topLeftCornerPropName][1], elt[topLeftCornerPropName][0]]);
+      } else {
+        origins.push(elt[topLeftCornerPropName]);
+      }
+
+      resolutions.push(resolution);
+      tileSizes.push(tileWidth == tileHeight ? tileWidth : [tileWidth, tileHeight]);
+      sizes.push([elt['MatrixWidth'], elt['MatrixHeight']]);
+    }
+  });
+  return new WMTSTileGrid({
+    extent: opt_extent,
+    origins: origins,
+    resolutions: resolutions,
+    matrixIds: matrixIds,
+    tileSizes: tileSizes,
+    sizes: sizes
+  });
+}
+},{"./TileGrid.js":"node_modules/ol/tilegrid/TileGrid.js","../array.js":"node_modules/ol/array.js","../proj.js":"node_modules/ol/proj.js"}],"node_modules/ol/source/BingMaps.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -94399,234 +94626,7 @@ var _default = {
   REST: 'REST'
 };
 exports.default = _default;
-},{}],"node_modules/ol/tilegrid/WMTS.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.createFromCapabilitiesMatrixSet = createFromCapabilitiesMatrixSet;
-exports.default = void 0;
-
-var _TileGrid = _interopRequireDefault(require("./TileGrid.js"));
-
-var _array = require("../array.js");
-
-var _proj = require("../proj.js");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/**
- * @module ol/tilegrid/WMTS
- */
-var __extends = void 0 && (void 0).__extends || function () {
-  var extendStatics = function (d, b) {
-    extendStatics = Object.setPrototypeOf || {
-      __proto__: []
-    } instanceof Array && function (d, b) {
-      d.__proto__ = b;
-    } || function (d, b) {
-      for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    };
-
-    return extendStatics(d, b);
-  };
-
-  return function (d, b) {
-    extendStatics(d, b);
-
-    function __() {
-      this.constructor = d;
-    }
-
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-  };
-}();
-
-/**
- * @typedef {Object} Options
- * @property {import("../extent.js").Extent} [extent] Extent for the tile grid. No tiles
- * outside this extent will be requested by {@link module:ol/source/Tile} sources.
- * When no `origin` or `origins` are configured, the `origin` will be set to the
- * top-left corner of the extent.
- * @property {import("../coordinate.js").Coordinate} [origin] The tile grid origin, i.e.
- * where the `x` and `y` axes meet (`[z, 0, 0]`). Tile coordinates increase left
- * to right and downwards. If not specified, `extent` or `origins` must be provided.
- * @property {Array<import("../coordinate.js").Coordinate>} [origins] Tile grid origins,
- * i.e. where the `x` and `y` axes meet (`[z, 0, 0]`), for each zoom level. If
- * given, the array length should match the length of the `resolutions` array, i.e.
- * each resolution can have a different origin. Tile coordinates increase left to
- * right and downwards. If not specified, `extent` or `origin` must be provided.
- * @property {!Array<number>} resolutions Resolutions. The array index of each
- * resolution needs to match the zoom level. This means that even if a `minZoom`
- * is configured, the resolutions array will have a length of `maxZoom + 1`
- * @property {!Array<string>} matrixIds matrix IDs. The length of this array needs
- * to match the length of the `resolutions` array.
- * @property {Array<import("../size.js").Size>} [sizes] Number of tile rows and columns
- * of the grid for each zoom level. The values here are the `TileMatrixWidth` and
- * `TileMatrixHeight` advertised in the GetCapabilities response of the WMTS, and
- * define each zoom level's extent together with the `origin` or `origins`.
- * A grid `extent` can be configured in addition, and will further limit the extent for
- * which tile requests are made by sources. If the bottom-left corner of
- * an extent is used as `origin` or `origins`, then the `y` value must be
- * negative because OpenLayers tile coordinates use the top left as the origin.
- * @property {number|import("../size.js").Size} [tileSize] Tile size.
- * @property {Array<import("../size.js").Size>} [tileSizes] Tile sizes. The length of
- * this array needs to match the length of the `resolutions` array.
- */
-
-/**
- * @classdesc
- * Set the grid pattern for sources accessing WMTS tiled-image servers.
- * @api
- */
-var WMTSTileGrid =
-/** @class */
-function (_super) {
-  __extends(WMTSTileGrid, _super);
-  /**
-   * @param {Options} options WMTS options.
-   */
-
-
-  function WMTSTileGrid(options) {
-    var _this = _super.call(this, {
-      extent: options.extent,
-      origin: options.origin,
-      origins: options.origins,
-      resolutions: options.resolutions,
-      tileSize: options.tileSize,
-      tileSizes: options.tileSizes,
-      sizes: options.sizes
-    }) || this;
-    /**
-     * @private
-     * @type {!Array<string>}
-     */
-
-
-    _this.matrixIds_ = options.matrixIds;
-    return _this;
-  }
-  /**
-   * @param {number} z Z.
-   * @return {string} MatrixId..
-   */
-
-
-  WMTSTileGrid.prototype.getMatrixId = function (z) {
-    return this.matrixIds_[z];
-  };
-  /**
-   * Get the list of matrix identifiers.
-   * @return {Array<string>} MatrixIds.
-   * @api
-   */
-
-
-  WMTSTileGrid.prototype.getMatrixIds = function () {
-    return this.matrixIds_;
-  };
-
-  return WMTSTileGrid;
-}(_TileGrid.default);
-
-var _default = WMTSTileGrid;
-/**
- * Create a tile grid from a WMTS capabilities matrix set and an
- * optional TileMatrixSetLimits.
- * @param {Object} matrixSet An object representing a matrixSet in the
- *     capabilities document.
- * @param {import("../extent.js").Extent=} opt_extent An optional extent to restrict the tile
- *     ranges the server provides.
- * @param {Array<Object>=} opt_matrixLimits An optional object representing
- *     the available matrices for tileGrid.
- * @return {WMTSTileGrid} WMTS tileGrid instance.
- * @api
- */
-
-exports.default = _default;
-
-function createFromCapabilitiesMatrixSet(matrixSet, opt_extent, opt_matrixLimits) {
-  /** @type {!Array<number>} */
-  var resolutions = [];
-  /** @type {!Array<string>} */
-
-  var matrixIds = [];
-  /** @type {!Array<import("../coordinate.js").Coordinate>} */
-
-  var origins = [];
-  /** @type {!Array<import("../size.js").Size>} */
-
-  var tileSizes = [];
-  /** @type {!Array<import("../size.js").Size>} */
-
-  var sizes = [];
-  var matrixLimits = opt_matrixLimits !== undefined ? opt_matrixLimits : [];
-  var supportedCRSPropName = 'SupportedCRS';
-  var matrixIdsPropName = 'TileMatrix';
-  var identifierPropName = 'Identifier';
-  var scaleDenominatorPropName = 'ScaleDenominator';
-  var topLeftCornerPropName = 'TopLeftCorner';
-  var tileWidthPropName = 'TileWidth';
-  var tileHeightPropName = 'TileHeight';
-  var code = matrixSet[supportedCRSPropName];
-  var projection = (0, _proj.get)(code.replace(/urn:ogc:def:crs:(\w+):(.*:)?(\w+)$/, '$1:$3')) || (0, _proj.get)(code);
-  var metersPerUnit = projection.getMetersPerUnit(); // swap origin x and y coordinates if axis orientation is lat/long
-
-  var switchOriginXY = projection.getAxisOrientation().substr(0, 2) == 'ne';
-  matrixSet[matrixIdsPropName].sort(function (a, b) {
-    return b[scaleDenominatorPropName] - a[scaleDenominatorPropName];
-  });
-  matrixSet[matrixIdsPropName].forEach(function (elt) {
-    var matrixAvailable; // use of matrixLimits to filter TileMatrices from GetCapabilities
-    // TileMatrixSet from unavailable matrix levels.
-
-    if (matrixLimits.length > 0) {
-      matrixAvailable = (0, _array.find)(matrixLimits, function (elt_ml) {
-        if (elt[identifierPropName] == elt_ml[matrixIdsPropName]) {
-          return true;
-        } // Fallback for tileMatrix identifiers that don't get prefixed
-        // by their tileMatrixSet identifiers.
-
-
-        if (elt[identifierPropName].indexOf(':') === -1) {
-          return matrixSet[identifierPropName] + ':' + elt[identifierPropName] === elt_ml[matrixIdsPropName];
-        }
-
-        return false;
-      });
-    } else {
-      matrixAvailable = true;
-    }
-
-    if (matrixAvailable) {
-      matrixIds.push(elt[identifierPropName]);
-      var resolution = elt[scaleDenominatorPropName] * 0.28e-3 / metersPerUnit;
-      var tileWidth = elt[tileWidthPropName];
-      var tileHeight = elt[tileHeightPropName];
-
-      if (switchOriginXY) {
-        origins.push([elt[topLeftCornerPropName][1], elt[topLeftCornerPropName][0]]);
-      } else {
-        origins.push(elt[topLeftCornerPropName]);
-      }
-
-      resolutions.push(resolution);
-      tileSizes.push(tileWidth == tileHeight ? tileWidth : [tileWidth, tileHeight]);
-      sizes.push([elt['MatrixWidth'], elt['MatrixHeight']]);
-    }
-  });
-  return new WMTSTileGrid({
-    extent: opt_extent,
-    origins: origins,
-    resolutions: resolutions,
-    matrixIds: matrixIds,
-    tileSizes: tileSizes,
-    sizes: sizes
-  });
-}
-},{"./TileGrid.js":"node_modules/ol/tilegrid/TileGrid.js","../array.js":"node_modules/ol/array.js","../proj.js":"node_modules/ol/proj.js"}],"node_modules/ol/source/WMTS.js":[function(require,module,exports) {
+},{}],"node_modules/ol/source/WMTS.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -95472,9 +95472,13 @@ var _style = require("ol/style");
 
 var _layer3 = require("ol/layer");
 
+var _WMTS = _interopRequireDefault(require("ol/tilegrid/WMTS"));
+
 var _source = require("ol/source");
 
 var _proj = require("ol/proj");
+
+var _extent = require("ol/extent");
 
 var _control = require("ol/control.js");
 
@@ -95564,9 +95568,42 @@ var osmFr = new _layer3.Tile({
   preload: Infinity,
   zIndex: 0,
   layerLabel: "osmFr"
+}); // IGN 
+
+var resolutions = [];
+var matrixIds = [];
+var proj3857 = (0, _proj.get)('EPSG:3857');
+var maxResolution = (0, _extent.getWidth)(proj3857.getExtent()) / 256;
+
+for (var i = 0; i < 18; i++) {
+  matrixIds[i] = i.toString();
+  resolutions[i] = maxResolution / Math.pow(2, i);
+}
+
+var tileGrid = new _WMTS.default({
+  origin: [-20037508, 20037508],
+  resolutions: resolutions,
+  matrixIds: matrixIds
+}); // For more information about the IGN API key see
+// https://geoservices.ign.fr/documentation/donnees-ressources-wmts.html
+
+var ignSource = new _source.WMTS({
+  url: 'https://wxs.ign.fr/pratique/geoportail/wmts',
+  layer: 'GEOGRAPHICALGRIDSYSTEMS.MAPS',
+  matrixSet: 'PM',
+  format: 'image/jpeg',
+  projection: 'EPSG:3857',
+  tileGrid: tileGrid,
+  style: 'normal',
+  attributions: '<a href="http://www.ign.fr" target="_blank">' + '<img src="https://wxs.ign.fr/static/logos/IGN/IGN.gif" title="Institut national de l\'' + 'information géographique et forestière" alt="IGN"></a>'
+});
+var ign = new _layer3.Tile({
+  source: ignSource,
+  zIndex: 0,
+  layerLabel: "ign"
 }); // List of base layers
 
-var baseLayers = [EsriWorldTopo, osmFr, EsriWorldImagery];
+var baseLayers = [EsriWorldTopo, osmFr, EsriWorldImagery, ign];
 /*----------  Ol map  ----------*/
 // Center of the map (convert from longLat to Mercator)
 
@@ -95773,7 +95810,7 @@ var displayFeatureInfo = function displayFeatureInfo(pixel) {
 map.on('click', function (evt) {
   displayFeatureInfo(evt.pixel);
 });
-},{"ol/ol.css":"node_modules/ol/ol.css","ol":"node_modules/ol/index.js","ol/format/TopoJSON":"node_modules/ol/format/TopoJSON.js","ol/style":"node_modules/ol/style.js","ol/layer":"node_modules/ol/layer.js","ol/source":"node_modules/ol/source.js","ol/proj":"node_modules/ol/proj.js","ol/control.js":"node_modules/ol/control.js","ol/easing":"node_modules/ol/easing.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"ol/ol.css":"node_modules/ol/ol.css","ol":"node_modules/ol/index.js","ol/format/TopoJSON":"node_modules/ol/format/TopoJSON.js","ol/style":"node_modules/ol/style.js","ol/layer":"node_modules/ol/layer.js","ol/tilegrid/WMTS":"node_modules/ol/tilegrid/WMTS.js","ol/source":"node_modules/ol/source.js","ol/proj":"node_modules/ol/proj.js","ol/extent":"node_modules/ol/extent.js","ol/control.js":"node_modules/ol/control.js","ol/easing":"node_modules/ol/easing.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -95801,7 +95838,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50401" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60424" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
