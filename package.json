@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.1",
-    "ol": "^6.4.3"
+    "ol": "^6.4.3",
+    "showdown": "^1.9.1"
   }
 }

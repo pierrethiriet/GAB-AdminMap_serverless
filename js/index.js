@@ -10,8 +10,8 @@ import {getWidth} from 'ol/extent';
 import {defaults as defaultControls, ScaleLine} from "ol/control.js";
 import {inAndOut} from 'ol/easing';
 
-
-
+const showdown  = require('showdown'),
+      converter = new showdown.Converter();
 
 
 /*=============================
@@ -348,7 +348,10 @@ const displayFeatureInfo = (pixel) => {
 
     // Add feature info to panel
     infoLayerName.innerHTML = feature.get("nom");
-    infoLayerDescription.innerHTML = feature.get("description");
+    // Convert description from md to html
+    const html = converter.makeHtml(feature.get("description"));
+    infoLayerDescription.innerHTML = html;
+    // infoLayerDescription.innerHTML = feature.get("description");
     if (feature.get("pdf") != "") {
       const pdfUrl = `<a href="data/pdf/${feature.get("pdf")}.pdf" download>
                           <i class="fas fa-file-download"></i>
