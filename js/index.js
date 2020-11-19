@@ -10,9 +10,9 @@ import {getWidth} from 'ol/extent';
 import {defaults as defaultControls, ScaleLine} from "ol/control.js";
 import {inAndOut} from 'ol/easing';
 
-
-
-
+import {Circle as CircleStyle} from 'ol/style';
+import {Draw, Modify, Snap, Select} from 'ol/interaction';
+import {altKeyOnly, click, pointerMove} from 'ol/events/condition';
 
 /*=============================
 =            Setup            =
@@ -232,7 +232,7 @@ baseMapSwitchDiv.addEventListener("change", () => {
 // Default style
 const defaultStyle = new Style({
   fill: new Fill({
-    color: "rgba(255, 255, 255, 0.5)",
+    color: "rgba(255, 255, 255, 0.4)",
   }),
   stroke: new Stroke({
     color: "rgba(90, 90, 90, 0.8)",
@@ -263,10 +263,10 @@ const featureSelectStyle = new Style({
 /*----------  Add vector  ----------*/
 
 // Get info DOM
-const infoLayerName = document.getElementById("infoLayerName");
-const infoLayerDescription = document.getElementById("infoLayerDescription");
-const infoLayerDataLink = document.getElementById("infoLayerDataLink");
-const defaultInfo = document.getElementById("defaultInfo");
+// const infoLayerName = document.getElementById("infoLayerName");
+// const infoLayerDescription = document.getElementById("infoLayerDescription");
+// const infoLayerDataLink = document.getElementById("infoLayerDataLink");
+// const defaultInfo = document.getElementById("defaultInfo");
 
 // Container for feature selected
 let featureSelected;
@@ -319,73 +319,164 @@ scaleSwitch.addEventListener("change", () => {
   // Clear vector selected source
   featureOverlay.getSource().clear();
   // Clear info
-  defaultInfo.classList.remove("hidden");
-  infoLayerName.innerHTML = "&nbsp;";
-  infoLayerDescription.innerHTML = "&nbsp;";
-  infoLayerDataLink.innerHTML = "&nbsp;";
+  // defaultInfo.classList.remove("hidden");
+  // infoLayerName.innerHTML = "&nbsp;";
+  // infoLayerDescription.innerHTML = "&nbsp;";
+  // infoLayerDataLink.innerHTML = "&nbsp;";
   // Display layer selected
   layerVectorChange();
 });
 
 
 
-/*----------  Map interactions  ----------*/
+
+
+/*----------  drawing  ----------*/
+
+const drawSource = new VectorSource();
+const drawVector = new VectorLayer({
+  source: drawSource,
+  style: new Style({
+    image: new CircleStyle({
+      radius: 9,
+      fill: new Fill({
+        color: "rgba(204, 93, 36, 0.9)",
+      }),
+      stroke: new Stroke({
+        color: "rgba(255, 255, 255, 0.9)",
+        width: 2,
+      })
+    }),
+  }),
+  zIndex: 1000,
+});
+
+map.addLayer(drawVector);
+
+
+// global so we can remove them later
+let draw, snap, modify; 
+let interactionStatus = 0;
+
+// Draw
+draw = new Draw({
+  source: drawSource,
+  type: "Point",
+});
+
+// Snap
+snap = new Snap({source: drawSource});
+
+// Modify
+modify = new Modify({
+  source: drawSource,
+
+  condition: evt => {
+    if (!altKeyOnly(evt)){
+      return true;
+    };
+        
+    const feature = drawSource.getClosestFeatureToCoordinate(evt.coordinate);
+
+    if (feature){
+      drawSource.removeFeature(feature);
+    };
+  }
+});
+
+  
+
+
+const addInteractions = () => {
+  map.addInteraction(draw);
+  map.addInteraction(snap);
+  map.addInteraction(modify);
+};
+const removeInteractions = () => {
+  map.removeInteraction(draw);
+  map.removeInteraction(snap);
+  map.removeInteraction(modify);
+};
+
+
+const drawBtn = document.getElementById("drawBtn");
+
+drawBtn.addEventListener("click", () => {
+  if (interactionStatus == 0) {
+    addInteractions();
+    drawBtn.classList.add("btn-higlight")
+    interactionStatus = 1;
+  } else {
+    removeInteractions();
+    drawBtn.classList.remove("btn-higlight")
+    interactionStatus = 0;
+  }
+})
+
+
+
+
+
+
+
+
+// /*----------  Map interactions  ----------*/
  
 
-const displayFeatureInfo = (pixel) => {
+// const displayFeatureInfo = (pixel) => {
 
-  // Get features at click coordinates (pixel)
-  const features = map.getFeaturesAtPixel(pixel);
+//   // Get features at click coordinates (pixel)
+//   const features = map.getFeaturesAtPixel(pixel);
 
-  // Extract first features
-  const feature = features.length ? features[0] : undefined;
-
-
-  if (feature) {
-
-    // Hide default text in info panel
-    defaultInfo.classList.add("hidden");
-
-    // Add feature info to panel
-    infoLayerName.innerHTML = feature.get("nom");
-    infoLayerDescription.innerHTML = feature.get("description");
-    if (feature.get("pdf") != "") {
-      const pdfUrl = `<a href="data/pdf/${feature.get("pdf")}.pdf" download>
-                          <i class="fas fa-file-download"></i>
-                      </a>`;
-      infoLayerDataLink.innerHTML = pdfUrl;
-    };
+//   // Extract first features
+//   const feature = features.length ? features[0] : undefined;
 
 
-    // Style select feature
-    if (feature !== featureSelected) {
-      if (featureSelected) {
-        featureOverlay.getSource().clear();
-      };
-      featureOverlay.getSource().addFeature(feature);
-      featureSelected = feature;
-    };
+//   if (feature) {
 
-    // Fit view to selected feature
-    view.fit(feature.getGeometry(), {
-      padding: [100, 25, 25, 100],
-      duration: 600,
-      easing: inAndOut
-    });
+//     // Hide default text in info panel
+//     defaultInfo.classList.add("hidden");
 
-  } else {
-    defaultInfo.classList.remove("hidden");
-    infoLayerName.innerHTML = "&nbsp;";
-    infoLayerDescription.innerHTML = "&nbsp;";
-    infoLayerDataLink.innerHTML = "&nbsp;";
-    featureOverlay.getSource().clear();
+//     // Add feature info to panel
+//     infoLayerName.innerHTML = feature.get("nom");
+//     infoLayerDescription.innerHTML = feature.get("description");
+//     if (feature.get("pdf") != "") {
+//       const pdfUrl = `<a href="data/pdf/${feature.get("pdf")}.pdf" download>
+//                           <i class="fas fa-file-download"></i>
+//                       </a>`;
+//       infoLayerDataLink.innerHTML = pdfUrl;
+//     };
 
-  };
 
-};
+//     // Style select feature
+//     if (feature !== featureSelected) {
+//       if (featureSelected) {
+//         featureOverlay.getSource().clear();
+//       };
+//       featureOverlay.getSource().addFeature(feature);
+//       featureSelected = feature;
+//     };
+
+//     // Fit view to selected feature
+//     view.fit(feature.getGeometry(), {
+//       padding: [100, 25, 25, 100],
+//       duration: 600,
+//       easing: inAndOut
+//     });
+
+//   } else {
+//     defaultInfo.classList.remove("hidden");
+//     infoLayerName.innerHTML = "&nbsp;";
+//     infoLayerDescription.innerHTML = "&nbsp;";
+//     infoLayerDataLink.innerHTML = "&nbsp;";
+//     featureOverlay.getSource().clear();
+
+//   };
+
+// };
   
 
 // Add event to map
-map.on('click', (evt) => {
-  displayFeatureInfo(evt.pixel);
-});
+// map.on('click', (evt) => {
+//   displayFeatureInfo(evt.pixel);
+// });
