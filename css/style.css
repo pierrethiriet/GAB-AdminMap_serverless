@@ -3,6 +3,30 @@
 =            Page setup            =
 ===================================*/
 
+@font-face {
+  font-family: Panton;
+  src: url("../fonts/Panton-Regular.otf");
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: Panton;
+  src: url("../fonts/Panton-SemiBold.otf");
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: Panton;
+  src: url("../fonts/Panton-Bold.otf");
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: Panton;
+  src: url("../fonts/Panton-Black.otf");
+  font-weight: 900;
+}
+
 
 :root {
     --sidbar-width: 300px;
@@ -10,7 +34,7 @@
     --color-btn: rgb(189, 189, 189);
     --color-btn-hover: rgb(172, 172, 172);
   
-    --font-familly: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    --font-familly: Panton, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
     --font-fammilly-serif: Cambria, "Hoefler Text", Utopia, "Liberation Serif", "Nimbus Roman No9 L Regular", Times, "Times New Roman", serif;
   
     --color-grey-01: rgb(247, 247, 247);
