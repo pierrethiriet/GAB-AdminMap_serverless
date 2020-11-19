@@ -95484,6 +95484,10 @@ var _control = require("ol/control.js");
 
 var _easing = require("ol/easing");
 
+var _interaction = require("ol/interaction");
+
+var _condition = require("ol/events/condition");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _createForOfIteratorHelper(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
@@ -95656,7 +95660,7 @@ baseMapSwitchDiv.addEventListener("change", function () {
 
 var defaultStyle = new _style.Style({
   fill: new _style.Fill({
-    color: "rgba(255, 255, 255, 0.5)"
+    color: "rgba(255, 255, 255, 0.4)"
   }),
   stroke: new _style.Stroke({
     color: "rgba(90, 90, 90, 0.8)",
@@ -95682,11 +95686,11 @@ var featureSelectStyle = new _style.Style({
 });
 /*----------  Add vector  ----------*/
 // Get info DOM
-
-var infoLayerName = document.getElementById("infoLayerName");
-var infoLayerDescription = document.getElementById("infoLayerDescription");
-var infoLayerDataLink = document.getElementById("infoLayerDataLink");
-var defaultInfo = document.getElementById("defaultInfo"); // Container for feature selected
+// const infoLayerName = document.getElementById("infoLayerName");
+// const infoLayerDescription = document.getElementById("infoLayerDescription");
+// const infoLayerDataLink = document.getElementById("infoLayerDataLink");
+// const defaultInfo = document.getElementById("defaultInfo");
+// Container for feature selected
 
 var featureSelected; // Create vector layers for all entries of layer list
 
@@ -95748,69 +95752,133 @@ layerVectorChange(); // Bind scale switch to map layers
 scaleSwitch.addEventListener("change", function () {
   // Clear vector selected source
   featureOverlay.getSource().clear(); // Clear info
-
-  defaultInfo.classList.remove("hidden");
-  infoLayerName.innerHTML = "&nbsp;";
-  infoLayerDescription.innerHTML = "&nbsp;";
-  infoLayerDataLink.innerHTML = "&nbsp;"; // Display layer selected
+  // defaultInfo.classList.remove("hidden");
+  // infoLayerName.innerHTML = "&nbsp;";
+  // infoLayerDescription.innerHTML = "&nbsp;";
+  // infoLayerDataLink.innerHTML = "&nbsp;";
+  // Display layer selected
 
   layerVectorChange();
 });
-/*----------  Map interactions  ----------*/
+/*----------  drawing  ----------*/
 
-var displayFeatureInfo = function displayFeatureInfo(pixel) {
-  // Get features at click coordinates (pixel)
-  var features = map.getFeaturesAtPixel(pixel); // Extract first features
-
-  var feature = features.length ? features[0] : undefined;
-
-  if (feature) {
-    // Hide default text in info panel
-    defaultInfo.classList.add("hidden"); // Add feature info to panel
-
-    infoLayerName.innerHTML = feature.get("nom");
-    infoLayerDescription.innerHTML = feature.get("description");
-
-    if (feature.get("pdf") != "") {
-      var pdfUrl = "<a href=\"data/pdf/".concat(feature.get("pdf"), ".pdf\" download>\n                          <i class=\"fas fa-file-download\"></i>\n                      </a>");
-      infoLayerDataLink.innerHTML = pdfUrl;
-    }
-
-    ; // Style select feature
-
-    if (feature !== featureSelected) {
-      if (featureSelected) {
-        featureOverlay.getSource().clear();
-      }
-
-      ;
-      featureOverlay.getSource().addFeature(feature);
-      featureSelected = feature;
-    }
-
-    ; // Fit view to selected feature
-
-    view.fit(feature.getGeometry(), {
-      padding: [100, 25, 25, 100],
-      duration: 600,
-      easing: _easing.inAndOut
-    });
-  } else {
-    defaultInfo.classList.remove("hidden");
-    infoLayerName.innerHTML = "&nbsp;";
-    infoLayerDescription.innerHTML = "&nbsp;";
-    infoLayerDataLink.innerHTML = "&nbsp;";
-    featureOverlay.getSource().clear();
-  }
-
-  ;
-}; // Add event to map
-
-
-map.on('click', function (evt) {
-  displayFeatureInfo(evt.pixel);
+var drawSource = new _source.Vector();
+var drawVector = new _layer3.Vector({
+  source: drawSource,
+  style: new _style.Style({
+    image: new _style.Circle({
+      radius: 9,
+      fill: new _style.Fill({
+        color: "rgba(204, 93, 36, 0.9)"
+      }),
+      stroke: new _style.Stroke({
+        color: "rgba(255, 255, 255, 0.9)",
+        width: 2
+      })
+    })
+  }),
+  zIndex: 1000
 });
-},{"ol/ol.css":"node_modules/ol/ol.css","ol":"node_modules/ol/index.js","ol/format/TopoJSON":"node_modules/ol/format/TopoJSON.js","ol/style":"node_modules/ol/style.js","ol/layer":"node_modules/ol/layer.js","ol/tilegrid/WMTS":"node_modules/ol/tilegrid/WMTS.js","ol/source":"node_modules/ol/source.js","ol/proj":"node_modules/ol/proj.js","ol/extent":"node_modules/ol/extent.js","ol/control.js":"node_modules/ol/control.js","ol/easing":"node_modules/ol/easing.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+map.addLayer(drawVector); // global so we can remove them later
+
+var draw, snap, modify;
+var interactionStatus = 0; // Draw
+
+draw = new _interaction.Draw({
+  source: drawSource,
+  type: "Point"
+}); // Snap
+
+snap = new _interaction.Snap({
+  source: drawSource
+}); // Modify
+
+modify = new _interaction.Modify({
+  source: drawSource,
+  condition: function condition(evt) {
+    if (!(0, _condition.altKeyOnly)(evt)) {
+      return true;
+    }
+
+    ;
+    var feature = drawSource.getClosestFeatureToCoordinate(evt.coordinate);
+
+    if (feature) {
+      drawSource.removeFeature(feature);
+    }
+
+    ;
+  }
+});
+
+var addInteractions = function addInteractions() {
+  map.addInteraction(draw);
+  map.addInteraction(snap);
+  map.addInteraction(modify);
+};
+
+var removeInteractions = function removeInteractions() {
+  map.removeInteraction(draw);
+  map.removeInteraction(snap);
+  map.removeInteraction(modify);
+};
+
+var drawBtn = document.getElementById("drawBtn");
+drawBtn.addEventListener("click", function () {
+  if (interactionStatus == 0) {
+    addInteractions();
+    drawBtn.classList.add("btn-higlight");
+    interactionStatus = 1;
+  } else {
+    removeInteractions();
+    drawBtn.classList.remove("btn-higlight");
+    interactionStatus = 0;
+  }
+}); // /*----------  Map interactions  ----------*/
+// const displayFeatureInfo = (pixel) => {
+//   // Get features at click coordinates (pixel)
+//   const features = map.getFeaturesAtPixel(pixel);
+//   // Extract first features
+//   const feature = features.length ? features[0] : undefined;
+//   if (feature) {
+//     // Hide default text in info panel
+//     defaultInfo.classList.add("hidden");
+//     // Add feature info to panel
+//     infoLayerName.innerHTML = feature.get("nom");
+//     infoLayerDescription.innerHTML = feature.get("description");
+//     if (feature.get("pdf") != "") {
+//       const pdfUrl = `<a href="data/pdf/${feature.get("pdf")}.pdf" download>
+//                           <i class="fas fa-file-download"></i>
+//                       </a>`;
+//       infoLayerDataLink.innerHTML = pdfUrl;
+//     };
+//     // Style select feature
+//     if (feature !== featureSelected) {
+//       if (featureSelected) {
+//         featureOverlay.getSource().clear();
+//       };
+//       featureOverlay.getSource().addFeature(feature);
+//       featureSelected = feature;
+//     };
+//     // Fit view to selected feature
+//     view.fit(feature.getGeometry(), {
+//       padding: [100, 25, 25, 100],
+//       duration: 600,
+//       easing: inAndOut
+//     });
+//   } else {
+//     defaultInfo.classList.remove("hidden");
+//     infoLayerName.innerHTML = "&nbsp;";
+//     infoLayerDescription.innerHTML = "&nbsp;";
+//     infoLayerDataLink.innerHTML = "&nbsp;";
+//     featureOverlay.getSource().clear();
+//   };
+// };
+// Add event to map
+// map.on('click', (evt) => {
+//   displayFeatureInfo(evt.pixel);
+// });
+},{"ol/ol.css":"node_modules/ol/ol.css","ol":"node_modules/ol/index.js","ol/format/TopoJSON":"node_modules/ol/format/TopoJSON.js","ol/style":"node_modules/ol/style.js","ol/layer":"node_modules/ol/layer.js","ol/tilegrid/WMTS":"node_modules/ol/tilegrid/WMTS.js","ol/source":"node_modules/ol/source.js","ol/proj":"node_modules/ol/proj.js","ol/extent":"node_modules/ol/extent.js","ol/control.js":"node_modules/ol/control.js","ol/easing":"node_modules/ol/easing.js","ol/interaction":"node_modules/ol/interaction.js","ol/events/condition":"node_modules/ol/events/condition.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -95838,7 +95906,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60424" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51576" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
