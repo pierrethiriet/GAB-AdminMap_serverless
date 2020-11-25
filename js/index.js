@@ -1,6 +1,9 @@
+// Openlayers
+// https://openlayers.org/
 import 'ol/ol.css';
 import {Map, View} from 'ol';
 import TopoJSON from 'ol/format/TopoJSON';
+import GeoJSON from 'ol/format/GeoJSON';
 import {Fill, Stroke, Style, Text} from 'ol/style';
 import {Tile as TileLayer, Vector as VectorLayer} from 'ol/layer';
 import WMTSTileGrid from 'ol/tilegrid/WMTS';
@@ -10,44 +13,45 @@ import {getWidth} from 'ol/extent';
 import {defaults as defaultControls, ScaleLine} from "ol/control.js";
 import {inAndOut} from 'ol/easing';
 
+
+// showdown - Markdown to HTML converter
+// https://github.com/showdownjs/showdown
 const showdown  = require('showdown'),
       converter = new showdown.Converter();
+
+
+
 
 
 /*=============================
 =            Setup            =
 ==============================*/
 
+/**
+ * 1 - List of administrative vector layers
+ */
 
-// List of layers
+// List of administrative vector layers
 const layerList = [
   {
     id: "bv", 
     label: "Bassins versants", 
-    jsonName: "bv_web_topo.json", 
-    pgTableCol: `id, bv2018_id, bv2018_lb AS name, surf_cart_, etiquette, dep, name_join, maj_dt, couleur`
-  },
-  {
-    id: "pays", 
-    label: "Pays", 
-    jsonName: "pays_web_topo.json", 
-    pgTableCol: `frab_id AS id, insee_dep, nom_reg, insee_reg, link, nom_pays AS name, nom_dep`
+    jsonName: "bv_web_topo.json"
   },
   {
     id: "epci", 
     label: "Communautés de communes", 
-    jsonName: "epci_web_topo.json", 
-    pgTableCol: `id_epci AS id, nom_epci AS name, nature_epc, type_epci, siren_epci AS siren`},
+    jsonName: "epci_web_topo.json"
+  },
   {
     id: "communes", 
     label: "Communes", 
-    jsonName: "communes_web_topo.json", 
-    pgTableCol: `id, name, type`
+    jsonName: "communes_web_topo.json"
   }
 ];
 
 
-// Setup option of scale list
+// Populate administrative vector layers selector
 const scaleSwitch = document.getElementById("scaleSwitch");
 
 for (const layer of layerList) {
@@ -64,9 +68,16 @@ for (const layer of layerList) {
 
 
 
-/*==================================
-=            Maps setup            =
-===================================*/
+/*========================================
+=            Basic maps setup            =
+=========================================*/
+
+
+/**
+ * 1 - Basemaps layers
+ * 2 - Departement 35 layers
+ * 3 - View and maps
+ */
 
 
 /*----------  Base maps  ---------*/
@@ -119,7 +130,6 @@ const osmFr = new TileLayer({
 
 
 // IGN 
-
 const resolutions = [];
 const matrixIds = [];
 const proj3857 = getProjection('EPSG:3857');
@@ -159,11 +169,11 @@ var ign = new TileLayer({
   layerLabel: "ign"
 });  
 
-// List of base layers
+// List of base maps layers
 const baseLayers = [EsriWorldTopo, osmFr, EsriWorldImagery, ign];
   
 
-/*----------  Ol map  ----------*/
+/*----------  Ol map setup  ----------*/
 
 // Center of the map (convert from longLat to Mercator)
 const centerLonLat = [-1.6, 48.1];
@@ -215,6 +225,55 @@ baseMapSwitchDiv.addEventListener("change", () => {
 });
 
 
+
+
+/*----------  Layers of departement 35  ----------*/
+
+// Style of departement 35 layer
+// Style with 2 strokes
+const dep35StyleShadow = new Style({
+  stroke: new Stroke({
+    // color: [0, 0, 127, 0.15],
+    color: "rgba(36, 128, 69, 0.15)",
+    width: 10
+  }),
+  zIndex: 1
+});
+
+const dep35Style = new Style({
+  stroke: new Stroke({
+    color: "rgba(36, 128, 69, 0.8)",
+    width: 3,
+  }),
+  zIndex: 2
+});
+
+
+// Create layer of departement 35
+const dep35Vector = new VectorLayer({
+  source: new VectorSource({
+    url: "data/topojson/dep35_web_topo.json",
+    format: new GeoJSON(),
+    overlaps: false,
+  }),
+  style: [dep35StyleShadow, dep35Style],
+  zIndex: 100
+});
+
+
+// Add departement 35 layer to the map
+map.addLayer(dep35Vector);
+
+
+// Bind dep. 35 visibility to checkbox
+const departCheck = document.getElementById("departCheck");
+
+departCheck.addEventListener("change", () =>  {
+  dep35Vector.setVisible(departCheck.checked)
+});
+
+
+
 /*=====  End of Maps setup  ======*/
 
 
@@ -229,26 +288,40 @@ baseMapSwitchDiv.addEventListener("change", () => {
 
 /*----------  OL Vector Style  ----------*/
 
-// Default style
-const defaultStyle = new Style({
-  fill: new Fill({
-    color: "rgba(255, 255, 255, 0.5)",
-  }),
-  stroke: new Stroke({
-    color: "rgba(90, 90, 90, 0.8)",
-    width: 2,
-  }),
-  text: new Text({
-    font: "12px 'Segoe UI',sans-serif",
+
+// Fill color according to feature prperties
+const getColor = (feature) => {
+  if (feature.get("actions")) {
+    return "rgba(242, 217, 116, 0.4)";
+  } else {
+    return "rgba(255, 255, 255, 0.2)";
+  };
+};
+
+// Default style function of feature properties
+const defaultStyle = (feature) => {
+  return new Style({
     fill: new Fill({
-      color: '#000',
+      color: getColor(feature),
     }),
     stroke: new Stroke({
-      color: '#fff',
-      width: 3,
+      color: "rgba(90, 90, 90, 0.8)",
+      width: 2,
     }),
-  }),
-});
+    text: new Text({
+      text: feature.get("nom"),
+      font: "12px 'Segoe UI',sans-serif",
+      fill: new Fill({
+        color: '#000',
+      }),
+      stroke: new Stroke({
+        color: "rgba(255, 255, 255, 0.5)",
+        width: 2.5,
+      }),
+    }),
+  });
+}
+
 
 
 // Style for selected territory
@@ -264,8 +337,9 @@ const featureSelectStyle = new Style({
 
 // Get info DOM
 const infoLayerName = document.getElementById("infoLayerName");
-const infoLayerDescription = document.getElementById("infoLayerDescription");
-const infoLayerDataLink = document.getElementById("infoLayerDataLink");
+const infoLayerActions = document.getElementById("infoLayerActions");
+const infoLayerfiche_bio = document.getElementById("infoLayerfiche_bio");
+const infoLayerCarto_bio = document.getElementById("infoLayerCarto_bio");
 const defaultInfo = document.getElementById("defaultInfo");
 
 // Container for feature selected
@@ -282,11 +356,7 @@ for (const layer of layerList) {
       format: new TopoJSON(),
       overlaps: false,
     }),
-    // style: style,
-    style: function (feature) {
-      defaultStyle.getText().setText(feature.get("nom"));
-      return defaultStyle;
-    },
+    style: defaultStyle
   });
 };
 
@@ -321,8 +391,9 @@ scaleSwitch.addEventListener("change", () => {
   // Clear info
   defaultInfo.classList.remove("hidden");
   infoLayerName.innerHTML = "&nbsp;";
-  infoLayerDescription.innerHTML = "&nbsp;";
-  infoLayerDataLink.innerHTML = "&nbsp;";
+  infoLayerActions.innerHTML = "&nbsp;";
+  infoLayerfiche_bio.style.display = "none"
+  infoLayerCarto_bio.style.display = "none";
   // Display layer selected
   layerVectorChange();
 });
@@ -337,7 +408,7 @@ const displayFeatureInfo = (pixel) => {
   // Get features at click coordinates (pixel)
   const features = map.getFeaturesAtPixel(pixel);
 
-  // Extract first features
+  // Extract the first feature
   const feature = features.length ? features[0] : undefined;
 
 
@@ -347,17 +418,36 @@ const displayFeatureInfo = (pixel) => {
     defaultInfo.classList.add("hidden");
 
     // Add feature info to panel
+
+    // Nom of features
     infoLayerName.innerHTML = feature.get("nom");
+
+    // GAB35 actions
     // Convert description from md to html
-    const html = converter.makeHtml(feature.get("description"));
-    infoLayerDescription.innerHTML = html;
-    // infoLayerDescription.innerHTML = feature.get("description");
-    if (feature.get("pdf") != "") {
-      const pdfUrl = `<a href="data/pdf/${feature.get("pdf")}.pdf" download>
-                          <i class="fas fa-file-download"></i>
-                      </a>`;
-      infoLayerDataLink.innerHTML = pdfUrl;
+    const actions = feature.get("actions");
+    if (actions) {
+      const html = converter.makeHtml(feature.get("actions"));
+      infoLayerActions.innerHTML = html;
+    } else {
+      infoLayerActions.innerHTML = "&nbsp;";
     };
+
+    // GAB 35 fiche bio
+    if (feature.get("fiche_bio")) {
+      infoLayerfiche_bio.style.display = "block"
+      infoLayerfiche_bio.href = feature.get("fiche_bio");
+    } else {
+      infoLayerfiche_bio.style.display = "none"
+    };
+
+    // GAB 35 carto bio
+    if (feature.get("carto_bio")) {
+      infoLayerCarto_bio.style.display = "block"
+      infoLayerCarto_bio.href = feature.get("carto_bio");
+    } else {
+      infoLayerCarto_bio.style.display = "none"
+    };
+
 
 
     // Style select feature
@@ -379,8 +469,9 @@ const displayFeatureInfo = (pixel) => {
   } else {
     defaultInfo.classList.remove("hidden");
     infoLayerName.innerHTML = "&nbsp;";
-    infoLayerDescription.innerHTML = "&nbsp;";
-    infoLayerDataLink.innerHTML = "&nbsp;";
+    infoLayerActions.innerHTML = "&nbsp;";
+    infoLayerfiche_bio.style.display = "none";
+    infoLayerCarto_bio.style.display = "none";
     featureOverlay.getSource().clear();
 
   };
@@ -389,6 +480,6 @@ const displayFeatureInfo = (pixel) => {
   
 
 // Add event to map
-map.on('click', (evt) => {
+map.on("click", (evt) => {
   displayFeatureInfo(evt.pixel);
 });

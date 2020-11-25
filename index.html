@@ -5,7 +5,7 @@
     <meta charset="utf-8">
 
     <title>GAB35</title>
-    <meta name="description" content="Carte des ..."> <!-- completer -->
+    <meta name="description" content="Carte des actions en cours du GAB 35">
     <meta name="author" content="GAB35">
 
 
@@ -24,15 +24,15 @@
     <div class="grid-container">
 
       <!-- Header -->
-      <div class="grid-header">
+      <!-- <div class="grid-header">
 
         <div><span class="project-name">Carte du développement de la bio en 35</span> </div>
 
-        <a href="https://www.inrae.fr/en">
+        <a href="">
           <img class="logo" src="./data/Agrobio35IlleVilaine_logo.png" alt="INRAe Logo">
         </a>
 
-      </div>
+      </div> -->
       <!-- #/ Header -->
 
 
@@ -42,22 +42,29 @@
         <!-- Admin scale selector -->
         <h5>Echelle administrative</h5>
         <div class="scale-switch-container">
-          <!-- <div class="scale-switch-label">Valeur</div> -->
           <select id="scaleSwitch" class="scale-switch-select">
           </select>
-          
+        </div>
+        
+        <div class="legend">		
+          <i style=background:#F2D974></i> Actions en cours<br>
         </div>
         
         <div id="layerAttrContainer" class="layer-attr-container">
           <div id="infoLayer" class="info-layer">
 
               <p id="defaultInfo">
-                Cliquez sur les éléments de la carte pour plus d’information
+                Cliquez sur la carte pour pour lister les actions en cours d'Agrobio35
               </p>
 
               <div id="infoLayerName" class="name"></div>
-              <div id="infoLayerDescription" class="description"></div>
-              <div id="infoLayerDataLink" class="data-link"></div>
+              <div id="infoLayerActions" class="description"></div>
+
+              <div class="d-grid gap-2 d-md-block">
+                <a href="#" class="btn btn-primary" role="button" data-toggle="button" id="infoLayerfiche_bio" style="display:none" target="_blank"><i class="fas fa-key"></i> Chiffres-clés</a>
+                <a href="#" class="btn btn-primary" role="button" data-toggle="button" id="infoLayerCarto_bio" style="display:none" target="_blank"><i class="far fa-map"></i> Carte</a>
+              </div>
+
           </div>
         </div>
 
@@ -77,26 +84,31 @@
 
       </div>
 
+      <!-- Departement checkbox -->
+      <div class="form-check depart-check-container">
+        <input class="form-check-input" type="checkbox" value="" id="departCheck" checked>
+        <label class="form-check-label" for="departCheck">Ille-et-Vilaine</label>
+      </div>
 
-        <!-- Base map control -->
-        <div class="baseMapBtnDiv">
-          <button id="baseMapBtn"><i class="fas fa-layer-group"></i></button>
-        </div>
-    
-        <div id="baseMapSwitchDiv" class="hidden">
-          <select id="baseMapSwitch">
-            <option value="osmFr" selected>Carte Topo (OSM)</option>
-            <option value="ign">Carte IGN</option>
-            <option value="EsriWorldTopo">Carte Topo (ESRI)</option>
-            <option value="EsriWorldImagery">Esri Imagery</option>
-          </select>
-        </div>
+      <!-- Base map control -->
+      <div class="baseMapBtnDiv">
+        <button id="baseMapBtn"><i class="fas fa-layer-group"></i></button>
+      </div>
+  
+      <div id="baseMapSwitchDiv" class="hidden">
+        <select id="baseMapSwitch">
+          <option value="osmFr" selected>Carte Topo (OSM)</option>
+          <option value="ign">Carte IGN</option>
+          <option value="EsriWorldTopo">Carte Topo (ESRI)</option>
+          <option value="EsriWorldImagery">Esri Imagery</option>
+        </select>
+      </div>
 
 
       <!-- Footer -->
-      <div class="grid-footer">
+      <!-- <div class="grid-footer">
         <p>Le groupement des agrobiologistes d’Ille-et-Vilaine (AgroBio 35) - 2020</p>
-      </div>
+      </div> -->
 
 
     </div>
