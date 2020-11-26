@@ -278,17 +278,17 @@
     
     
     
-  /*==================================
-  =            Map elements          =
-  ===================================*/
+/*==================================
+=            Map elements          =
+===================================*/
   
   
-  /*---------  Map options  --------*/
-  
-  #map {
-    width: 100%;
-    height: 100vh;
-  }
+/*---------  Map options  --------*/
+
+#map {
+  width: 100%;
+  height: 100vh;
+}
     
     
 /*----  Customize OpenLayers controls  ----*/
@@ -501,8 +501,9 @@
 }
 
 
-/* .info-layer  .btn {
-  width: 100px;
-} */
+.info-layer-btn {
+  display: flex;
+  justify-content: center;
+}
 
 /*# sourceMappingURL=/style.78032849.css.map */
