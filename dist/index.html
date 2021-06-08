@@ -1,1 +1,124 @@
-<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><title>GAB35</title><meta name="description" content="Carte des actions en cours du GAB 35"><meta name="author" content="GAB35"><link rel="icon" type="image/png" href="gab35_favicon_16px.be9dee32.png"><link rel="stylesheet" href="all.cf1d1cff.css"><link rel="stylesheet" href="style.0ceab98b.css"><link rel="stylesheet" href="js.bb28b584.css"></head><body>  <div class="grid-container">     <div id="sidebar" class="grid-sidebar grid-sidebar-show">  <h5>Echelle administrative</h5> <div class="scale-switch-container"> <select id="scaleSwitch" class="scale-switch-select"> </select> </div> <div class="legend"> <i style="background:#f2d974"></i> Actions en cours<br> </div> <div id="layerAttrContainer" class="layer-attr-container"> <div id="infoLayer" class="info-layer"> <p id="defaultInfo"> Cliquez sur la carte pour pour lister les actions en cours d'Agrobio35 </p> <div id="infoLayerName" class="name"></div> <div id="infoLayerActions" class="description"></div> <div class="info-layer-btn"> <a href="#" class="btn" id="infoLayerfiche_bio" style="display:none" target="_blank"><i class="fa-key fas"></i> Chiffres-clés</a> <a href="#" class="btn" id="infoLayerCarto_bio" style="display:none" target="_blank"><i class="fa-map far"></i> Carte</a> </div> </div> </div> </div>   <div class="grid-map">  <div id="mapAnalysis"> <div id="map"></div> </div> </div>  <div class="depart-check-container form-check"> <input class="form-check-input" type="checkbox" value="" id="departCheck" checked=""> <label class="form-check-label" for="departCheck">Ille-et-Vilaine</label> </div>  <div class="baseMapBtnDiv"> <button id="baseMapBtn"><i class="fa-layer-group fas"></i></button> </div> <div id="baseMapSwitchDiv" class="hidden"> <select id="baseMapSwitch"> <option value="osmFr" selected="">Carte Topo (OSM)</option> <option value="ign">Carte IGN</option> <option value="EsriWorldTopo">Carte Topo (ESRI)</option> <option value="EsriWorldImagery">Esri Imagery</option> </select> </div>   </div>   <script src="js.75a35ea9.js"></script> </body></html>
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+
+    <meta charset="utf-8">
+
+    <title>GAB35</title>
+    <meta name="description" content="Carte des actions en cours du GAB 35">
+    <meta name="author" content="GAB35">
+
+
+    <!-- favicon -->
+    <link rel="icon" type="image/png" href="/gab35_favicon_16px.556be54d.png">
+
+    <!-- stylesheet -->
+    <link rel="stylesheet" href="/all.0954b987.css">
+    <link rel="stylesheet" href="/style.78032849.css">
+
+  <script src="/all.0954b987.js"></script><script src="/style.78032849.js"></script><link rel="stylesheet" href="/js.00a46daa.css"></head>
+
+  <body>
+
+    <!-- Main page grid container -->
+    <div class="grid-container">
+
+      <!-- Header -->
+      <!-- <div class="grid-header">
+
+        <div><span class="project-name">Carte du développement de la bio en 35</span> </div>
+
+        <a href="">
+          <img class="logo" src="./data/Agrobio35IlleVilaine_logo.png" alt="INRAe Logo">
+        </a>
+
+      </div> -->
+      <!-- #/ Header -->
+
+
+      <!-- Sidebar -->
+      <div id="sidebar" class="grid-sidebar grid-sidebar-show">
+
+        <!-- Admin scale selector -->
+        <h5>Echelle administrative</h5>
+        <div class="scale-switch-container">
+          <select id="scaleSwitch" class="scale-switch-select">
+          </select>
+        </div>
+        
+        <div class="legend">		
+          <i style="background:#F2D974"></i> Actions en cours<br>
+        </div>
+        
+        <div id="layerAttrContainer" class="layer-attr-container">
+          <div id="infoLayer" class="info-layer">
+
+              <p id="defaultInfo">
+                Cliquez sur la carte pour pour lister les actions en cours d'Agrobio35
+              </p>
+
+              <div id="infoLayerName" class="name"></div>
+              <div id="infoLayerActions" class="description"></div>
+
+              <div class="info-layer-btn">
+                <a href="#" class="btn" id="infoLayerfiche_bio" style="display:none" target="_blank"><i class="fas fa-key"></i> Chiffres-clés</a>
+                <a href="#" class="btn" id="infoLayerCarto_bio" style="display:none" target="_blank"><i class="far fa-map"></i> Carte</a>
+              </div>
+
+          </div>
+        </div>
+
+
+
+      </div>
+      <!-- #/ Sidebar -->
+
+
+      <!-- Map  -->
+      <div class="grid-map">
+
+        <!-- Main map or analysis map  -->
+        <div id="mapAnalysis">
+          <div id="map"></div>
+        </div>
+
+      </div>
+
+      <!-- Departement checkbox -->
+      <div class="form-check depart-check-container">
+        <input class="form-check-input" type="checkbox" value="" id="departCheck" checked="">
+        <label class="form-check-label" for="departCheck">Ille-et-Vilaine</label>
+      </div>
+
+      <!-- Base map control -->
+      <div class="baseMapBtnDiv">
+        <button id="baseMapBtn"><i class="fas fa-layer-group"></i></button>
+      </div>
+  
+      <div id="baseMapSwitchDiv" class="hidden">
+        <select id="baseMapSwitch">
+          <option value="osmFr" selected="">Carte Topo (OSM)</option>
+          <option value="ign">Carte IGN</option>
+          <option value="EsriWorldTopo">Carte Topo (ESRI)</option>
+          <option value="EsriWorldImagery">Esri Imagery</option>
+        </select>
+      </div>
+
+
+      <!-- Footer -->
+      <!-- <div class="grid-footer">
+        <p>Le groupement des agrobiologistes d’Ille-et-Vilaine (AgroBio 35) - 2020</p>
+      </div> -->
+
+
+    </div>
+    <!-- / grid-container  -->
+
+
+
+    <!-- Javascript  -->
+    <script src="/js.00a46daa.js"></script>
+
+  </body>
+
+</html>
